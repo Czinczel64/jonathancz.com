@@ -204,6 +204,42 @@
       font-weight: 300;
       line-height: 1.7;
     }
+    .hero-content {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+    }
+    .hero-text {
+      flex: 1;
+    }
+    .hero-photo {
+      flex-shrink: 0;
+    }
+    .photo-frame {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(79, 140, 255, 0.15);
+      box-shadow: 0 0 40px rgba(79, 140, 255, 0.08);
+    }
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-glow {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: conic-gradient(rgba(79, 140, 255, 0.2), transparent 40%, rgba(79, 140, 255, 0.1) 70%, rgba(79, 140, 255, 0.2));
+      pointer-events: none;
+      animation: glowRotate 6s linear infinite;
+    }
+    @keyframes glowRotate {
+      to { transform: rotate(360deg); }
+    }
     .hero-actions {
       display: flex;
       gap: 16px;
@@ -525,6 +561,20 @@
     }
 
     @media (max-width: 900px) {
+      .hero-content {
+        flex-direction: column-reverse;
+        gap: 32px;
+        text-align: center;
+      }
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .photo-frame {
+        width: 200px;
+        height: 200px;
+      }
       header { padding: 14px 24px; }
       header nav { gap: 24px; }
       header nav a { font-size: 0.75rem; }
@@ -565,14 +615,24 @@
   </header>
 
   <section class="hero" id="topo">
-    <div class="hero-badge">Design · IA · Criatividade</div>
-    <h1>Criativo que<br>entende de <span>código</span></h1>
-    <p class="sub">
-      Designer formado pela Mackenzie. Transformo ideias em landing pages, edições, artes visuais com o que há de melhor em design e inteligência artificial.
-    </p>
-    <div class="hero-actions">
-      <a href="#projetos" class="btn btn-primary">Ver projetos ↓</a>
-      <a href="#contato" class="btn btn-outline">Vamos conversar</a>
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">Design · IA · Criatividade</div>
+        <h1>Criativo que<br>entende de <span>código</span></h1>
+        <p class="sub">
+          Designer formado pela Mackenzie. Transformo ideias em landing pages, edições, artes visuais com o que há de melhor em design e inteligência artificial.
+        </p>
+        <div class="hero-actions">
+          <a href="#projetos" class="btn btn-primary">Ver projetos ↓</a>
+          <a href="#contato" class="btn btn-outline">Vamos conversar</a>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <div class="photo-frame">
+          <img src="foto-perfil.png" alt="Jonathan Czinczel" />
+          <div class="photo-glow"></div>
+        </div>
+      </div>
     </div>
   </section>
 
