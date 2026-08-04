@@ -326,8 +326,9 @@
       display: block;
       background: var(--bg-soft);
     }
-    .work-thumb svg { width: 100%; height: 100%; display: block; transition: transform 0.7s cubic-bezier(0.22, 0.68, 0.35, 1); }
-    .work-card:hover .work-thumb svg { transform: scale(1.05); }
+    .work-thumb svg, .work-thumb img { width: 100%; height: 100%; display: block; transition: transform 0.7s cubic-bezier(0.22, 0.68, 0.35, 1); }
+    .work-thumb img { object-fit: cover; }
+    .work-card:hover .work-thumb svg, .work-card:hover .work-thumb img { transform: scale(1.05); }
     .work-play {
       position: absolute;
       top: 50%; left: 50%;
@@ -601,7 +602,7 @@
   <section id="trabalhos">
     <div class="section-label">✦ Trabalhos</div>
     <h2 class="section-title">Projetos que <em>comunicam</em></h2>
-    <p class="section-desc">Identidades visuais, artes e vídeos criados do conceito ao entregável. Os cards abaixo são modelos de demonstração — em breve, os seus trabalhos reais aqui.</p>
+    <p class="section-desc">Identidades visuais, artes e vídeos criados do conceito ao entregável — do briefing ao resultado final.</p>
 
     <div class="work-grid">
 
@@ -674,29 +675,12 @@
 
       <div class="work-card">
         <div class="work-thumb">
-          <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#241d33"/><stop offset="1" stop-color="#120f1c"/>
-              </linearGradient>
-            </defs>
-            <rect width="640" height="400" fill="url(#g3)"/>
-            <g>
-              <rect x="60" y="80" width="150" height="150" rx="12" fill="#a78bfa"/>
-              <rect x="225" y="80" width="150" height="150" rx="12" fill="#f472b6"/>
-              <rect x="390" y="80" width="150" height="150" rx="12" fill="#67e8f9"/>
-              <rect x="60" y="245" width="150" height="150" rx="12" fill="none" stroke="#a78bfa" stroke-width="2"/>
-              <rect x="225" y="245" width="150" height="150" rx="12" fill="#f472b6" opacity="0.25"/>
-              <rect x="390" y="245" width="150" height="150" rx="12" fill="#67e8f9" opacity="0.2"/>
-            </g>
-            <text x="60" y="330" font-family="Georgia, serif" font-size="40" font-style="italic" fill="#fff">grid social</text>
-            <text x="60" y="368" font-family="Arial, sans-serif" font-size="14" letter-spacing="4" fill="#9b96ad">KITS DE POSTS & STORIES</text>
-          </svg>
+          <img src="boas-festas.jpg" alt="Post de Boas Festas criado para empresa" loading="lazy">
         </div>
         <div class="work-info">
-          <span class="work-tag">Social Media</span>
-          <h3>Campanha de Lançamento</h3>
-          <p>Kit completo de artes: posts, stories e capas de destaque com identidade única e consistência visual.</p>
+          <span class="work-tag">Arte para Social</span>
+          <h3>Post de Boas Festas</h3>
+          <p>Arte natalina criada para uma empresa: composição festiva, tipografia elegante e acabamento pronto para publicar.</p>
         </div>
       </div>
 
