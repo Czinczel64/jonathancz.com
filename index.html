@@ -554,6 +554,113 @@
       .process { grid-template-columns: 1fr; }
       .contact-links a { width: 100%; justify-content: center; }
     }
+      /* Video modal / embedded player */
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .video-modal.open { visibility: visible; opacity: 1; }
+    .video-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 7, 12, 0.88);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    }
+    .video-modal-box {
+      position: relative;
+      width: min(960px, 100%);
+      background: #0f0d15;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      transform: translateY(16px) scale(0.97);
+      transition: transform 0.3s ease;
+    }
+    .video-modal.open .video-modal-box { transform: translateY(0) scale(1); }
+    .video-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .video-modal-head h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .video-modal-close {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+    }
+    .video-modal-close:hover {
+      color: #fff;
+      background: var(--grad);
+      border-color: transparent;
+      transform: rotate(90deg);
+    }
+    .video-modal-stage {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+    .video-modal-stage video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+    .video-modal-spinner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .video-modal-spinner::after {
+      content: '';
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-top-color: var(--violet);
+      animation: vmodal-spin 0.8s linear infinite;
+    }
+    .video-modal-spinner.hide { display: none; }
+    @keyframes vmodal-spin { to { transform: rotate(360deg); } }
+    body.modal-open { overflow: hidden; }
+    @media (max-width: 640px) {
+      .video-modal { padding: 12px; }
+      .video-modal-box { border-radius: 14px; }
+    }
+
   </style>
 </head>
 <body>
@@ -622,7 +729,7 @@
 
             <!-- Card de vídeo: edit do Escanor -->
       <div class="work-card">
-        <a class="work-thumb" href="escanor-edit.mp4" target="_blank" rel="noopener" aria-label="Assistir edit do Escanor">
+        <a class="work-thumb" href="escanor-edit.mp4" data-video="escanor-edit.mp4" data-title="Edit - Nanatsu no Taizai (Escanor)" aria-label="Assistir edit do Escanor">
           <img src="escanor-thumb.jpg" alt="Edit do Escanor - Nanatsu no Taizai" loading="lazy">
           <div class="work-play">
             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -637,7 +744,7 @@
 
             <!-- Card de video: Colagem (trabalho de faculdade) -->
       <div class="work-card">
-        <a class="work-thumb" href="colagem.mp4" target="_blank" rel="noopener" aria-label="Assistir video Colagem">
+        <a class="work-thumb" href="colagem.mp4" data-video="colagem.mp4" data-title="Colagem - Audiovisual" aria-label="Assistir video Colagem">
           <img src="colagem-thumb.jpg" alt="Colagem - trabalho de Audiovisual" loading="lazy">
           <div class="work-play">
             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -773,6 +880,73 @@
   <footer>
     <p>© 2026 Jonathan Czinczel — <em>Design Gráfico & Edição de Vídeo</em>. Feito com dedicação.</p>
   </footer>
+
+  <!-- Player embutido (modal) -->
+  <div class="video-modal" id="video-modal" role="dialog" aria-modal="true" aria-label="Player de v&iacute;deo" aria-hidden="true">
+    <div class="video-modal-backdrop" data-vmodal-close></div>
+    <div class="video-modal-box">
+      <div class="video-modal-head">
+        <h3 id="video-modal-title"></h3>
+        <button type="button" class="video-modal-close" aria-label="Fechar player">&times;</button>
+      </div>
+      <div class="video-modal-stage">
+        <div class="video-modal-spinner" id="video-modal-spinner"></div>
+        <video id="video-modal-player" controls playsinline preload="none"></video>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modal = document.getElementById('video-modal');
+      var player = document.getElementById('video-modal-player');
+      var title = document.getElementById('video-modal-title');
+      var spinner = document.getElementById('video-modal-spinner');
+      var closeBtn = modal.querySelector('.video-modal-close');
+
+      function openVideo(src, name) {
+        player.src = src;
+        title.textContent = name;
+        spinner.classList.remove('hide');
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        var play = player.play();
+        if (play && play.catch) play.catch(function () {});
+        closeBtn.focus();
+      }
+
+      function closeVideo() {
+        player.pause();
+        player.removeAttribute('src');
+        player.load();
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+      }
+
+      player.addEventListener('canplay', function () { spinner.classList.add('hide'); });
+      player.addEventListener('waiting', function () { spinner.classList.remove('hide'); });
+      player.addEventListener('playing', function () { spinner.classList.add('hide'); });
+
+      closeBtn.addEventListener('click', closeVideo);
+      modal.querySelector('[data-vmodal-close]').addEventListener('click', closeVideo);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeVideo();
+      });
+
+      var links = document.querySelectorAll('a[data-video]');
+      for (var i = 0; i < links.length; i++) {
+        (function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            openVideo(link.getAttribute('data-video'), link.getAttribute('data-title'));
+          });
+        })(links[i]);
+      }
+    })();
+  </script>
+
 
 </body>
 </html>
