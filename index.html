@@ -661,7 +661,95 @@
       .video-modal-box { border-radius: 14px; }
     }
 
-  </style>
+
+      /* Image lightbox */
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .image-modal.open { visibility: visible; opacity: 1; }
+    .image-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 7, 12, 0.92);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    }
+    .image-modal-box {
+      position: relative;
+      max-width: min(1080px, 100%);
+      max-height: 100%;
+      background: #0f0d15;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(16px) scale(0.97);
+      transition: transform 0.3s ease;
+    }
+    .image-modal.open .image-modal-box { transform: translateY(0) scale(1); }
+    .image-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .image-modal-head h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .image-modal-close {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+    }
+    .image-modal-close:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    .image-modal-stage {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      max-height: calc(100vh - 140px);
+    }
+    .image-modal-stage img {
+      max-width: 100%;
+      max-height: calc(100vh - 180px);
+      display: block;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    div.work-thumb { cursor: zoom-in; }
+</style>
 </head>
 <body>
 
@@ -725,7 +813,7 @@
       </div>
 
 
-      
+
 
             <!-- Card de vídeo: edit do Escanor -->
       <div class="work-card">
@@ -908,7 +996,21 @@
     </div>
   </div>
 
-  <script>
+
+  <!-- Lightbox de imagem -->
+  <div class="image-modal" id="image-modal" role="dialog" aria-modal="true" aria-label="Visualizar imagem ampliada" aria-hidden="true">
+    <div class="image-modal-backdrop" data-imodal-close></div>
+    <div class="image-modal-box">
+      <div class="image-modal-head">
+        <h3 id="image-modal-title"></h3>
+        <button type="button" class="image-modal-close" data-imodal-close aria-label="Fechar visualizador">&times;</button>
+      </div>
+      <div class="image-modal-stage">
+        <img id="image-modal-img" src="" alt="">
+      </div>
+    </div>
+  </div>
+<script>
     (function () {
       var modal = document.getElementById('video-modal');
       var player = document.getElementById('video-modal-player');
@@ -960,5 +1062,60 @@
   </script>
 
 
+
+  <script>
+    (function () {
+      var modal = document.getElementById('image-modal');
+      if (!modal) return;
+      var img = document.getElementById('image-modal-img');
+      var title = document.getElementById('image-modal-title');
+      var closeBtn = modal.querySelector('.image-modal-close');
+
+      function openImage(src, alt, t) {
+        img.src = src;
+        img.alt = alt || '';
+        title.textContent = t || alt || '';
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        closeBtn.focus();
+      }
+
+      function closeImage() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        img.removeAttribute('src');
+      }
+
+      closeBtn.addEventListener('click', closeImage);
+      modal.querySelector('[data-imodal-close]').addEventListener('click', closeImage);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeImage();
+      });
+
+      var thumbs = document.querySelectorAll('.work-thumb');
+      for (var i = 0; i < thumbs.length; i++) {
+        (function (thumb) {
+          if (thumb.hasAttribute('data-video')) return;
+          if (thumb.hasAttribute('target')) return;
+          var image = thumb.querySelector('img');
+          if (!image) return;
+          var card = thumb.closest('.work-card');
+          var h3 = card ? card.querySelector('h3') : null;
+          thumb.setAttribute('role', 'button');
+          thumb.setAttribute('tabindex', '0');
+          thumb.setAttribute('aria-label', 'Ampliar imagem: ' + (image.getAttribute('alt') || ''));
+          function launch(e) {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            openImage(image.getAttribute('src'), image.getAttribute('alt'), h3 ? h3.textContent : '');
+          }
+          thumb.addEventListener('click', launch);
+          thumb.addEventListener('keydown', launch);
+        })(thumbs[i]);
+      }
+    })();
+  </script>
 </body>
 </html>
